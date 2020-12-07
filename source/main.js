@@ -1,4 +1,6 @@
 (()=> {
+    var changed
+
     const canvas = {
         object  : null,
         context : null,
@@ -13,10 +15,16 @@
         canvas.object = document.getElementById('screen')
         canvas.context = canvas.object.getContext('2d')
 
+        document.getElementById('sides').addEventListener('change', async () => {
+            changed = true
+            await sleep(200)
+            Draw()
+        })
+
         window.addEventListener('resize', resizeCanvas, false);
         resizeCanvas()
 
-        document.getElementById('click', Draw)
+        document.getElementById('redraw').addEventListener('click', Draw)
         Draw()
     }
 
@@ -27,34 +35,90 @@
         canvas.height = canvas.object.height = clientRect.height;
     }
 
-    function UpdatePerimeter(n)
+    function UpdateInformation(n)
     {
         document.getElementById('perimeter').innerHTML = Math.floor(2 * n * Math.sin (Math.PI / n) * 10000000) / 10000000
+        document.getElementById('alfa'     ).innerHTML = Math.floor(360 / n * 10) / 10
     }
+
 
     async function Draw()
     {
+        const sides = parseInt(document.getElementById('sides').value)
+
+        DrawStaticPolygon(sides)
+
+        changed = false
+        canvas.context.strokeStyle = 'black'
+
         var start = 0
-        while (true)
+        while (!changed)
         {
-            canvas.context.clearRect(200 - 200, 200 - 200, 600, 400)
+            canvas.context.clearRect(200 - 200, 200 - 200, 450, 400)
 
             canvas.context.beginPath()
             canvas.context.fillStyle = 'red'
             canvas.context.arc(140, 170, 90, 0, 2 * Math.PI)
             canvas.context.stroke()
 
-            const sides = parseInt(document.getElementById('sides').value)
             await DrawPolygon(canvas.context, 140, 170, sides, 90, start)
-            await DrawPolygon(canvas.context, 350, 170, sides, 90, start)
+            await DrawPolygon(canvas.context, 350, 170, sides, 90, -start / 4)
 
-            UpdatePerimeter(sides)
+            UpdateInformation(sides)
 
             await sleep(50)
 
             start += 5
         }
     }
+
+
+    function DrawStaticPolygon(sides)
+    {
+        let alfa
+        let angle
+        let radius
+        let x,  y
+        let xo, yo
+
+        x = xo = 650
+        y = yo = 200
+        radius = 170
+
+        canvas.context.clearRect(200 - 200, 200 - 200, 900, 400)
+
+        canvas.context.strokeStyle = '#FF0000'
+        canvas.context.beginPath()
+        canvas.context.arc(xo, yo, radius, 0, 2 * Math.PI)
+        canvas.context.stroke()
+
+        canvas.context.strokeStyle = 'black'
+        DrawPolygon(canvas.context, x, y, sides, radius, 180)
+
+        alfa = 2 * Math.PI / sides
+
+        angle = 0
+        canvas.context.beginPath()
+        canvas.context.strokeStyle = 'gray'
+        canvas.context.setLineDash([3])
+
+        canvas.context.moveTo(xo,yo)
+        angle = -Math.PI / 2 - Math.PI - alfa / 2
+        x = xo + radius * Math.cos(angle)
+        y = yo + radius * Math.sin(angle)
+        canvas.context.lineTo(x,y)
+
+        canvas.context.moveTo(xo,yo)
+        angle = -Math.PI / 2 - Math.PI + alfa / 2
+        x = xo + radius * Math.cos(angle)
+        y = yo + radius * Math.sin(angle)
+        canvas.context.lineTo(x,y)
+
+        canvas.context.stroke()
+        canvas.context.setLineDash([0])
+        
+    }
+
 
     async function DrawPolygon(context, x, y, sides, radius, start)
     {
