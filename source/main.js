@@ -39,10 +39,10 @@
             canvas.context.arc(170, 170, 100, 0, 2 * Math.PI)
             canvas.context.stroke()
 
-            await DrawPolygon(canvas.context, 170, 170, 5, 100, start)
+            await DrawPolygon(canvas.context, 170, 170, parseInt(document.getElementById('sides').value), 100, start)
             await sleep(50)
 
-            start += 2
+            start += 5
         }
     }
 
