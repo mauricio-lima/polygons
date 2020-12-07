@@ -27,19 +27,29 @@
         canvas.height = canvas.object.height = clientRect.height;
     }
 
+    function UpdatePerimeter(n)
+    {
+        document.getElementById('perimeter').innerHTML = Math.floor(2 * n * Math.sin (Math.PI / n) * 10000000) / 10000000
+    }
+
     async function Draw()
     {
         var start = 0
         while (true)
         {
-            canvas.context.clearRect(200 - 200, 200 - 200, 400, 400)
+            canvas.context.clearRect(200 - 200, 200 - 200, 600, 400)
 
             canvas.context.beginPath()
             canvas.context.fillStyle = 'red'
-            canvas.context.arc(170, 170, 100, 0, 2 * Math.PI)
+            canvas.context.arc(140, 170, 90, 0, 2 * Math.PI)
             canvas.context.stroke()
 
-            await DrawPolygon(canvas.context, 170, 170, parseInt(document.getElementById('sides').value), 100, start)
+            const sides = parseInt(document.getElementById('sides').value)
+            await DrawPolygon(canvas.context, 140, 170, sides, 90, start)
+            await DrawPolygon(canvas.context, 350, 170, sides, 90, start)
+
+            UpdatePerimeter(sides)
+
             await sleep(50)
 
             start += 5
